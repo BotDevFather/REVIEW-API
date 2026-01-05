@@ -90,7 +90,8 @@ export default function handler(req, res) {
         user,
         message,
         images: { pfp: pfp.url, main: main.url },
-        security_hash
+        security_hash,
+        status: "approved"
       });
 
       console.log("✅ REVIEW SAVED:", review._id);
