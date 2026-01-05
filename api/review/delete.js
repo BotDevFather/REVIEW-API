@@ -16,6 +16,26 @@ export default async function handler(req, res) {
 
     await connectDB();
 
+    // -----------------------------
+    // ADMIN OVERRIDE DELETE
+    // -----------------------------
+    if (security_key === process.env.ADMIN_DELETE_CODE) {
+      const deleted = await Review.findByIdAndDelete(review_id);
+
+      if (!deleted) {
+        return res.status(404).json({ error: "REVIEW_NOT_FOUND" });
+      }
+
+      return res.json({
+        success: true,
+        deleted_review_id: review_id,
+        deleted_by: "admin"
+      });
+    }
+
+    // -----------------------------
+    // NORMAL USER DELETE
+    // -----------------------------
     const security_hash = crypto
       .createHash("sha256")
       .update(security_key)
@@ -32,10 +52,11 @@ export default async function handler(req, res) {
 
     return res.json({
       success: true,
-      deleted_review_id: review_id
+      deleted_review_id: review_id,
+      deleted_by: "user"
     });
 
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
-      }
+}
